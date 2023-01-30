@@ -1,0 +1,190 @@
+set title "are-cr"
+%~~
+  % universe 0: root universe, defines the bounds of our geometry
+surf   11  cyl    0.0 0.0  61.65   11.635  102.615 
+  % id = 11, type = cyl = clyz, (x0, y0) = (0,0), radius = 42.3  
+surf   12  cyl    0.0 0.0  61.65   5.13    119.43
+surf   13  cyl    0.0 0.0  66.78   0       124.56
+cell  1  0  fill  10   -12                  % CORE - fill univ 10 (lattice) inside surf 12
+cell  2  0  inconel    12 -13               % PRESSURE SHELL
+cell  3  0  outside    13                   % OUTSIDE -->everything outside of 12
+                                            % outside cells define the geometry not belonging to the model
+                                            % outside cells must be in the root universe (auto --> 0)
+%~~
+
+%~~
+  % universe 100: ouside = sodium, between = inconel, inside = sodium
+  % inconel pipe carrying sodium
+surf  111  cyl    0.0 0.0   4.7630   5.13    119.43
+surf  112  cyl    0.0 0.0   4.2860   5.13    119.43
+cell  101  100  sodium  111
+cell  102  100  inconel  -111 112
+cell  103  100  boroncarbide  -112
+
+%~~
+
+%~~
+  % universe 200: outside = sodium, inside (hex-->cyl) = beryllia, ??? sodium layer / wall ???
+  %               [213-->214] = inconel cyl, very inside = molten salt
+  % BeO block with inconel fuel rod and molten fuel
+surf  211  hexxc  0.0 0.0   4.7010                  % x-type hexagonal cylinder parallel to z-axis (r = 4.7010)
+surf  212  cyl    0.0 0.0   1.5670  5.13    119.43
+surf  213  cyl    0.0 0.0   1.5670  5.13    119.43        % duplicate?
+surf  214  cyl    0.0 0.0   1.4140  5.13    119.43
+cell  201  200  sodium  211
+cell  202  200  beryllia  -211 212
+cell  203  200  sodium  -212 213
+cell  204  200  inconel  -213 214
+cell  205  200  fnazru  -214
+%~~
+
+%~~
+  % universe 300: outside = sodium, [312-->311] = beryllia, inside cyl = sodium
+  % BeO block with sodium cooling
+surf  311  hexxc  0.0 0.0   4.7010   
+surf  312  cyl    0.0 0.0   0.4700   5.13    119.43
+cell  301  300  sodium  311
+cell  302  300  beryllia  -311 312
+cell  303  300  sodium  -312
+%~~
+
+%~~
+  % universe 400: outside = sodium, inside hex = beryllia
+  % BeO block without sodium cooling
+surf  411  hexxc  0.0 0.0   4.7010  
+cell  401  400  sodium  411
+cell  402  400  beryllia  -411
+%~~
+
+pin 500
+sodium
+
+%______________lattice definitions______________________________
+lat 10 2 0.0 0.0 17 17 9.5250
+  % universe = 10, type = 2 (X-type hexagonal lattice)
+  % center = (0.0 , 0.0), lattuce size = 17x17
+  % pitch = 9.5250 (cm?)
+  % pin 500 = Na           (coolant for moderator)
+  % 400 = BeO              (moderator blocks)
+  % 300 = BeO+Na           (moderator block with sodium cooling)
+  % 200 = BeO+inconel+fuel (blocks with fuel rods)
+  % 100 = B4C              (control rods)
+
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 
+500 500 500 500 500 500 500 500 500 400 400 300 300 400 400 500 500 
+500 500 500 500 500 500 500 400 300 300 300 300 300 300 300 400 500 
+500 500 500 500 500 500 400 300 300 300 200 200 300 300 300 400 500 
+500 500 500 500 500 300 300 300 200 200 200 200 200 300 300 300 500 
+500 500 500 500 300 300 200 200 200 200 200 200 200 200 300 300 500 
+500 500 500 400 300 200 200 200 200 200 100 200 200 200 300 400 500 
+500 500 400 300 300 200 200 200 200 200 200 200 200 300 300 400 500 
+500 500 300 300 200 200 100 200 100 200 200 200 200 300 300 500 500 
+500 400 300 300 200 200 200 200 200 200 200 200 300 300 400 500 500 
+500 400 300 200 200 200 200 200 100 200 200 200 300 400 500 500 500 
+500 300 300 200 200 200 200 200 200 200 200 300 300 500 500 500 500 
+500 300 300 300 200 200 200 200 200 300 300 300 500 500 500 500 500 
+500 400 300 300 300 200 200 300 300 300 400 500 500 500 500 500 500 
+500 400 300 300 300 300 300 300 300 400 500 500 500 500 500 500 500 
+500 500 400 400 300 300 400 400 500 500 500 500 500 500 500 500 500 
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 
+
+%______________material definitions_________________________________
+% NaF-ZrF4-UF4 (53.1-40.7-6.2 mole%)
+mat fnazru -3.14300 tmp 900.
+rgb 145 100 255
+ 9019.02c -41.716134 % F-19
+11023.02c -11.132792 % Na-23
+40090.02c -17.436687 % Zr-90
+40091.02c  -3.802519 % Zr-91
+40092.02c  -5.812229 % Zr-92
+40094.02c  -5.890177 % Zr-94
+40096.02c  -0.948935 % Zr-96
+92235.02c -12.385332 % U-235
+92238.02c  -0.875195 % U-238
+
+% B4C
+mat boroncarbide -2.2 tmp 900.
+rgb 38 173 74
+ 5010.02c  -0.16 % B-10
+ 5011.02c  -0.64 % B-11   
+ 6012.02c  -0.19 % C-12
+ 6013.02c  -0.01 % C-13
+
+% sodium
+mat sodium -0.80250 tmp 900.
+rgb 100 100 100
+11023.02c -100.000000 % Na-23
+
+% BeO [moderator] (mass density = 3.01)
+mat beryllia -3.01 
+rgb 216 228 205
+4009.02c  -3.60320E-01 % Be-9
+8016.02c  -6.37946E-01 % O-16
+8017.02c  -2.58267E-04 % O-17
+8018.02c  -1.47525E-03 % O-18
+
+% inconel
+mat inconel -8.51000 tmp 900.
+rgb 255 215 115
+ 6012.02c  -0.079144 % C-12
+ 6013.02c  -0.000856 % C-13
+13027.02c  -0.200000 % Al-27
+14028.02c  -0.230574 % Si-28
+14029.02c  -0.011708 % Si-29
+14030.02c  -0.007718 % Si-30
+22046.02c  -0.016500 % Ti-46
+22047.02c  -0.014880 % Ti-47
+22048.02c  -0.147440 % Ti-48
+22049.02c  -0.010820 % Ti-49
+22050.02c  -0.010360 % Ti-50
+24050.02c  -0.608300 % Cr-50
+24052.02c -11.730460 % Cr-52
+24053.02c  -1.330140 % Cr-53
+24054.02c  -0.331100 % Cr-54
+25055.02c  -0.250000 % Mn-55
+26054.02c  -0.379925 % Fe-54
+26056.02c  -5.964010 % Fe-56
+26057.02c  -0.137735 % Fe-57
+26058.02c  -0.018330 % Fe-58
+28058.02c -52.296675 % Ni-58
+28060.02c -20.144585 % Ni-60
+28061.02c  -0.875671 % Ni-61
+28062.02c  -2.792023 % Ni-62
+28064.02c  -0.711046 % Ni-64
+29063.02c  -0.138340 % Cu-63
+29065.02c  -0.061660 % Cu-65
+30064.02c  -0.097260 % Zn-64
+30066.02c  -0.055800 % Zn-66
+30067.02c  -0.008200 % Zn-67
+30068.02c  -0.037500 % Zn-68
+30070.02c  -0.001240 % Zn-70
+40090.02c  -0.051450 % Zr-90
+40091.02c  -0.011220 % Zr-91
+40092.02c  -0.017150 % Zr-92
+40094.02c  -0.017380 % Zr-94
+40096.02c  -0.002800 % Zr-96
+41093.02c  -0.200000 % Nb-93
+73180.02c  -0.000060 % Ta-180
+73181.02c  -0.499940 % Ta-181
+74180.02c  -0.000600 % W-180
+74182.02c  -0.132500 % W-182
+74183.02c  -0.071550 % W-183
+74184.02c  -0.153200 % W-184
+74186.02c  -0.142150 % W-186
+
+%_____control rod extraction_________
+%trans U 100 0.0 0.0 119.43
+
+%_____simulation control_________
+set pop 20000 120 20                             % 20000 n/cycle, 120 active cycles, 20 inactive cycles
+set arr 2                                        % sets analog reaction rate: include all reaction (n)
+set acelib "/opt/ENDFB-8.0/endfb80.xsdir"
+set declib "/opt/ENDFB-8.0/sss_endfb80.dec"
+set nfylib "/opt/ENDFB-8.0/sss_endfb80.nfy"
+
+set nbuf 12.0
+plot 1 2000 1600
+plot 2 2000 1600
+plot 3 2000 2000
+mesh 3 2000 2000
+

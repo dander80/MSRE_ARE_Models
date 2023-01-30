@@ -1,0 +1,231 @@
+% construction material: INOR-8
+  % nickel alloy, containing 17% molybdenum, 7% chromium, and 4% iron [thus, 72% nickel?]
+% reactor vessel: 
+  % OD: 59-1/8 min, 60 max
+  % ID: 58
+  % wall thickness: 9/16
+  % head thickness: 1
+  % annulus ID: 56, OD: 58
+% graphite 
+  % diameter: 55-1/4
+  % stinger dimension (double check): 2x2
+  % # fuel channels: 1064
+  % fuel channel size: 1.2 x 4 (rounded corners)
+  % effective core length: ~63 
+% core container
+  % ID: 55-1/2
+  % OD: 56
+  % wall thickness: 1/4
+  % heigh: 68
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+set title "MSRE-full"
+
+%%%%%%%%%%%%%%%%%%%%
+% universe 0: root %
+%%%%%%%%%%%%%%%%%%%%
+% cyl, #, x0, y0, r, z0, z1
+
+surf 11 cyl 0  0  27.75  5  73 % ID of core container
+surf 12 cyl 0  0  28     5  73 % OD of core container
+surf 13 cyl 0  0  29     0  79 % ID of reactor vessel
+surf 14 cyl 0  0  30     0  79 % OD of reactor vessel
+
+cell 1 0 fill 10  -11         % fill core (10) into core
+cell 2 0 INOR     11  -12     % core container
+cell 3 0 SALT     12  -13     % annulus gap 
+cell 4 0 INOR     13  -14     % reactor vessel
+cell 5 0 outside  14          % outside of geometry
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% universe 100 = stingers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+surf sCYL1 cyl -0.4    1    0.2 % top channel, left side
+surf sCYL2 cyl  0.4    1    0.2 % top channel, right side
+surf sCYL3 cyl -0.4   -1    0.2 % bottom channel, left side
+surf sCYL4 cyl  0.4   -1    0.2 % bottom channel, right side
+surf sCYL5 cyl  1      0.4  0.2 % right channel, top
+surf sCYL6 cyl  1     -0.4  0.2 % right channel, bottom
+surf sCYL7 cyl -1      0.4  0.2 % left channel, top   
+surf sCYL8 cyl -1     -0.4  0.2 % left channel, bottom
+
+surf sRECTtop    rect -0.4  0.4  0.8  1.0 % top
+surf sRECTbottom rect -0.4  0.4 -1.0 -0.8 % bottom
+surf sRECTright  rect  0.8  1.0 -0.4  0.4 % right
+surf sRECTleft   rect -1.0 -0.8 -0.4  0.4 % left
+
+surf sCELL   rect -1.0  1.0 -1.0  1.0
+
+cell cRECTtop     100 SALT -sRECTtop    -sCELL 
+cell cRECTbottom  100 SALT -sRECTbottom -sCELL
+cell cRECTright   100 SALT -sRECTright  -sCELL
+cell cRECTleft    100 SALT -sRECTleft   -sCELL
+cell cCYLtopleft  100 SALT -sCYL1       -sCELL sRECTtop
+cell cCYLtopright 100 SALT -sCYL2       -sCELL sRECTtop 
+cell cCYLbotleft  100 SALT -sCYL3       -sCELL sRECTbottom
+cell cCYLbotright 100 SALT -sCYL4       -sCELL sRECTbottom
+cell cCYLrighttop 100 SALT -sCYL5       -sCELL sRECTright
+cell cCYLrightbot 100 SALT -sCYL6       -sCELL sRECTright
+cell cCYLlefttop  100 SALT -sCYL7       -sCELL sRECTleft
+cell cCYLleftbot  100 SALT -sCYL8       -sCELL sRECTleft
+cell cGraphite    100 GRAPHITE  sCYL1 sCYL2 sCYL3 sCYL4 sCYL5 sCYL6 sCYL7 sCYL8 sRECTtop sRECTbottom sRECTright sRECTleft -sCELL
+
+%%%%%%%%%%%%%%%%%%%%%
+% universe 200 = CR % currently using 500 in place of 200
+%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% universe 500 = empty %
+%%%%%%%%%%%%%%%%%%%%%%%%
+%pin 500
+%SALT
+surf saltCYL  cyl  0  0  2 
+cell saltFILL 500  SALT  -saltCYL
+
+%______________lattice definitions____________
+lat 10   1   0.0 0.0   29 29   2
+  % universe = 10, type = 1 (square lattice)
+  % center = (0.0 , 0.0), lattuce size = 27x27
+  % pitch = 2 in
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 500 500 500 100 100 100 100 100 100 100 500 500 500 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500 500 500
+500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500
+500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500
+500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500
+500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500
+500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500
+500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 500 100 500 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 500 100 500 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500
+500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500
+500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500
+500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500
+500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500
+500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500
+500 500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500 500
+500 500 500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 100 100 100 100 100 100 100 100 100 100 100 100 100 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 500 500 500 100 100 100 100 100 100 100 500 500 500 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500
+
+
+%______________material definitions___________
+
+% https://msrworkshop.ornl.gov/wp-content/uploads/2016/09/presentation-session-5-Fratoni.pdf
+% fuel salt compisition: 65LiF-29.2BeF2-5ZrF4-0.8UF4 (99.99% for 7Li enrichment)
+% fuel salt density 145.3 ± 1.0 lb/ft3 (2.3275 ± 0.0160 g/cm3)
+% Mass fraction of 235U in the salt is 1.408 ± 0.007 wt%
+% Core temperature 1,181°F (638°C)
+% One rod was inserted at 46.6 in. position, other two rods at their upper limits
+
+% INOR-8
+  % density: (8.7745±0.0200) g/cm3 
+  % compisition: 0.06% (C mass fraction), 0.08%
+  % nickel: 71 wt%, molybdenum:16 wt%, chromium: 7 wt%, iron: 5 wt%, others:1 wt%
+  % https://www.sciencedirect.com/topics/chemistry/hastelloy
+mat INOR -8.7745 tmp 900.
+rgb 138 137 135 
+%24052.02c -6.22 % Cr-52
+%26056.02c -4.59 % Fe-56
+%28058.02c -48.33 % Ni-58
+%28060.02c -18.63 % Ni-60
+%28062.02c -2.58 % Ni-62
+%42092.02c -2.34 % Mo-92
+%42094.02c -1.47 % Mo-94
+%42095.02c -2.54 % Mo-95
+%42096.02c -2.67 % Mo-96
+%42097.02c -1.53 % Mo-97
+%42099.02c -3.89 % Mo-99
+%42100.02c -1.56 % Mo-100
+
+24052.09c -6.22 % Cr-52
+26056.09c -4.59 % Fe-56
+28058.09c -48.33 % Ni-58
+28060.09c -18.63 % Ni-60
+28062.09c -2.58 % Ni-62
+42092.09c -2.34 % Mo-92
+42094.09c -1.47 % Mo-94
+42095.09c -2.54 % Mo-95
+42096.09c -2.67 % Mo-96
+42097.09c -1.53 % Mo-97
+42099.09c -3.89 % Mo-99
+42100.09c -1.56 % Mo-100
+
+
+% GRAPHITE
+  % https://inis.iaea.org/collection/NCLCollectionStore/_Public/05/096/5096957.pdf
+  % low-porosity graphite, grade CGB
+  % ORNL-3708, page 373: average bulk density: 1.86 g/cm3
+mat GRAPHITE -1.86 tmp 900. 
+rgb 255 82 3
+%6012.02c -100 % C-12
+6012.09c -100 % C-12
+
+
+% SALT
+  % fuel salt compisition: 65LiF-29.2BeF2-5ZrF4-0.8UF4 (99.99% for 7Li enrichment)
+  % fuel salt density 145.3 ± 1.0 lb/ft3 (2.3275 ± 0.0160 g/cm3)
+  % Mass fraction of 235U in the salt is 1.408 ± 0.007 wt%
+%mat SALT -2.3275 tmp 900.
+%rgb 66 195 255
+%40090.02c -5.60805 % Zr-90
+%40091.02c -1.22298 % Zr-91
+%40092.02c -1.86935 % Zr-92
+%40094.02c -1.89442 % Zr-94
+%40096.02c -0.3052  % Zr-96
+%4009.02c -6.3      % Be-9
+%9019.02c -67       % F-19
+%92235.02c -1.683   % U-235
+%92238.02c -3.417   % U-238
+%3006.02c -0.00108  % Li-6
+%3007.02c -10.79892 % Li-7
+% Fuel salt: 65%LiF + 29.1%BeF2 + 5%ZrF4 + 0.9%UF4, U enrichment 0.33
+mat SALT  -2.25914124 rgb 66 195 255 burn 1 tmp  900.000
+
+   3006.09c  -0.000004680509    %  Li-6
+   3007.09c  -0.109180890349    %  Li-7
+   4009.09c  -0.062789668629    %  Be-9
+   9019.09c  -0.667741475163    %  F-19
+  40090.09c  -0.055373626321    %  Zr-90
+  40091.09c  -0.012210090564    %  Zr-91
+  40092.09c  -0.018868554439    %  Zr-92
+  40094.09c  -0.019537984142    %  Zr-94
+  40096.09c  -0.003214765481    %  Zr-96
+  92234.09c  -0.000148116523    %  U-234
+  92235.09c  -0.016713626265    %  U-235
+  92236.09c  -0.000077210314    %  U-236
+  92238.09c  -0.034139311303    %  U-238
+
+
+
+
+%_____control rod extraction_________
+% trans U 100 0.0 0.0 119.43
+
+%_____simulation control_____________
+set pop 50000 100 50                              % 20000 n/cycle, 120 active cycles, 20 inactive cycles
+set arr 2                                        % sets analog reaction rate: include all reaction (n)
+set acelib "/opt/ENDFB-8.0/endfb80.xsdir"
+set declib "/opt/ENDFB-8.0/sss_endfb80.dec"
+set nfylib "/opt/ENDFB-8.0/sss_endfb80.nfy"
+
+%set acelib "sss_endfb7u.sssdir"
+%set declib "sss_endfb7.dec"
+%set nfylib "sss_endfb7.nfy"
+
+%set nbuf 12.0
+plot 1 2000 1600
+plot 2 2000 1600
+plot 3 2000 2000
+mesh 3 2000 2000
